@@ -35,6 +35,7 @@ SELECT * FROM books LEFT
 JOIN category ON books.category_id = category.id;
 
 SELECT * FROM books LEFT JOIN category ON books.category_id = category.id WHERE books.id=1;
+SELECT * FROM Bookshop.books LEFT JOIN category ON books.category_id = category.id WHERE books.id = 1;
 
 
 // 좋아요 추가
