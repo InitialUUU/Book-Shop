@@ -13,7 +13,7 @@ const allBooks = (req,res) => {
     // offset = limit * (currentPage-1)
     let offset = limit * (currentPage-1);
 
-    let sql = "SELECT * FROM books";
+    let sql = "SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id=books.id) AS likes FROM books";
     let values = []; // 문자형으로 보내면 에러가 나기 때문에 ParseInt로 변환해주고 가자.
                                             // offset은 위에서 계산식을 작성하다보니 자연스럽게 숫자로 넘어갔다.
     if(category_id && news) {
@@ -45,11 +45,18 @@ const allBooks = (req,res) => {
 };
 
 const bookDetail = (req, res) => {
-    let {id} = req.params;
+    let {user_id} = req.body;
+    let book_id = req.params.id;
 
-    let sql = `SELECT * FROM Bookshop.books LEFT JOIN category ON 
-                books.category_id = category.id WHERE books.id = ?;`;
-    conn.query(sql, id,
+    let sql = `SELECT *,
+                    (SELECT count(*) FROM likes WHERE liked_book_id=books.id) AS likes,
+                    (SELECT EXISTS (SELECT * FROM likes WHERE user_id=? AND liked_book_id=?)) AS liked 
+                FROM Bookshop.books 
+                LEFT JOIN category 
+                ON books.category_id = category.category_id 
+                WHERE books.id=?`;
+    let values= [user_id, book_id, book_id]
+    conn.query(sql, values,
         (err, results) => {
             if (err) {
                 console.log(err);
